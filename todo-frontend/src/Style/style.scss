@@ -1,0 +1,14 @@
+h2{
+  font-size:20px;
+}
+
+.loginButton{
+  background-color: #DD4B39;
+  color: #fff !important;
+  cursor: pointer;
+  &:hover{
+    background-color: #DD4B39 !important;
+    color: #fff !important;
+    opacity: 0.8;
+  }
+}
