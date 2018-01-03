@@ -6,8 +6,17 @@ export class ListData extends React.Component{
   constructor(props){
     super(props);
     this.state = {}
+    this.tick = this.tick.bind(this);
   }
-
+  tick() {
+	    this.setState({time: new Date().getTime()});
+	}
+  componentDidMount() {
+    this.interval = setInterval(this.tick, 10000);
+  }
+  componentWillUnmount() {
+    	clearInterval(this.interval);
+	}
   render(){
     if(this.props.loading)
       return <Loader />

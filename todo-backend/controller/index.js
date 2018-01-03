@@ -42,7 +42,7 @@ module.exports = {
     TODO.find({uid},{title: 1, description: 1, createdAt: 1, done: 1}).sort({createdAt: -1}).then(data=>{
       res.json({success: true, data: data || []});
     }).catch(err=>{
-      res.json({success: false, error: err.reason});
+      res.json({success: false, error: err});
     })
 
   }

@@ -1,5 +1,7 @@
 import React from 'react';
 import { ListData } from '../Shared';
+import {Graph} from '../'
+
 import {
   Modal,
   ModalHeader,
@@ -24,14 +26,16 @@ export class Home extends React.Component{
     this.setState({ showAddModal: false })
   }
   componentWillReceiveProps(nextProps) {
-    if(this.props.createLoading === true && nextProps.createLoading === false)
-      this.setState({showAddModal: false});
+    if(this.props.createLoading === true && nextProps.createLoading === false) {
+      this.setState({showAddModal: false, newTitle: '', newDesc: ''});
+    }
   }
   render(){
     if(this.props.user) {
       const {uid} = this.props.user;
       return(
         <div className="container">
+          <Graph data={this.props.data} />
           <div className="appHeader">
             <button className="btn btn-primary pull-right" onClick={()=>{
               this.setState({showAddModal: true});
