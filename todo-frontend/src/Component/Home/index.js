@@ -32,13 +32,14 @@ export class Home extends React.Component{
     this.setState({ showAddModal: false })
   }
   editTask(task) {
+    console.log(task);
     this.setState({
       showAddModal: true,
       modalMode: 'edit',
       title: task.title,
       description: task.description,
       editId: task._id,
-      priority: task.priority || 0,
+      priority: task.priority,
       scheduleAt: task.scheduleAt || new Date()
    })
   }
@@ -91,6 +92,7 @@ export class Home extends React.Component{
                     <div className="form-group">
                       <label className='formLabel'>Priority</label>
                       <select className="form-control" defaultValue={0}
+                        value={this.state.priority}
                         onChange={e => this.setState({priority:e.target.value})}
                       >
                         {

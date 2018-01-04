@@ -52,6 +52,7 @@ export class ListData extends React.Component{
 
   deleteTodo() {
     let selectedTodo = this.state.selectedTodo || [];
+    if(selectedTodo.length > 0)
     this.setState({deleteStart: true});
     this.props.deleteTodo(selectedTodo, this.props.uid);
   }
@@ -63,7 +64,7 @@ export class ListData extends React.Component{
     return (
       <div className="page">
         <div className='pull-right marginR20'>
-          <select onChange={(e)=> this.setState({filterType: e.target.value})}>
+          <select onChange={(e)=> this.setState({filterType: e.target.value, active: 0})}>
             <option value='0'>All</option>
             <option value='1'>Pending</option>
             <option value='2'>Completed</option>
@@ -101,14 +102,14 @@ export class ListData extends React.Component{
     let data = this.props.data || [];
     let selectedTodo = this.state.selectedTodo || [];
     let singlePageEntries = parseInt(this.state.singlePageEntries);
-    let totalPage = Math.ceil(data.length / singlePageEntries);
-    let active = this.state.active || 0;
-    let start = parseInt(active) * parseInt(singlePageEntries);
     let filterType = this.state.filterType;
     if(filterType == 1)
       data = _.filter(data,d=>!d.done)
     else if(filterType == 2)
       data = _.filter(data,d=>d.done)
+    let totalPage = Math.ceil(data.length / singlePageEntries);
+    let active = this.state.active || 0;
+    let start = parseInt(active) * parseInt(singlePageEntries);
     data = data.slice(start, start + singlePageEntries);
     const uid = this.props.uid;
     if(data.length > 0)
