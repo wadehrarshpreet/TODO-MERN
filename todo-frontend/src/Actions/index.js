@@ -1,7 +1,7 @@
 import {
   MARKED_DONE,FETCH_DATA,FETCHING_DATA,
   CREATE_TASK_END,CREATE_TASK_BEGIN,CREATE_TASK_FAIL,
-  ENV
+  ENV, DELETE_TODO, DELETE_BEGIN
 } from '../helper/config';
 
 let baseURL = 'http://localhost:4000';
@@ -35,17 +35,52 @@ export const actionCreator = {
     })
     .catch(err=> console.log(err.reason));
   },
-  createTask: (title, desc, uid) => (dispatch, getState) => {
-    let request = {
-      uid,
-      title,
-      description: desc
+  deleteTodo: (id, uid) => (dispatch, getState) => {
+    let data = '';
+    let payload = {
+      id,
+      uid
+    }
+    if(id.length < 0)
+      return;
+    for (let entry in payload) {
+      if(typeof payload[entry] == "object") {
+        let list: string[] = payload[entry];
+        list.forEach((option: string) => {
+            data+= entry+'='+encodeURIComponent(option) + '&';
+        })
+      } else {
+          data += entry + '=' + encodeURIComponent(payload[entry]) + '&';
+      }
+    }
+    dispatch({type: DELETE_BEGIN});
+    fetch(`${baseURL}/api/delete`,{
+      method: 'POST',
+      headers: {
+       'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: data
+    })
+    .then(response => response.json())
+    .then(data=>{
+      dispatch({
+        type: DELETE_TODO,
+        id: data.id
+      })
+    })
+    .catch(err=> console.log(err.reason));
+  },
+  createTask: (request) => (dispatch, getState) => {
+    let requestType = 'add';
+    if(request.editId){
+      requestType = 'edit';
     }
     let data = '';
     for (let entry in request) {
+        if(request[entry])
         data += entry + '=' + encodeURIComponent(request[entry]) + '&';
     }
-    fetch(`${baseURL}/api/add`, {
+    fetch(`${baseURL}/api/${requestType}`, {
       method: 'POST',
       headers: {
        'Content-Type': 'application/x-www-form-urlencoded'
@@ -55,7 +90,8 @@ export const actionCreator = {
       if(data.success)
         dispatch({
           type: CREATE_TASK_END,
-          data: data.data
+          data: data.data,
+          requestType: requestType
         })
       else
         dispatch({

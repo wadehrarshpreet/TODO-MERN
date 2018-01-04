@@ -12,6 +12,9 @@ const ToDoSchema = new Schema({
   },
   description: String,
   createdAt: Date,
+  scheduleAt: Date,
+  priority: Number,
+  completedAt: Date,
   done: {
     type: Boolean,
     default: false

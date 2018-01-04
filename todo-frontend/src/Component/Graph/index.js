@@ -2,25 +2,32 @@ import React from 'react';
 import moment from 'moment';
 import * as d3 from "d3";
 import _ from 'lodash';
+export * from './graph';
 
+const dayPadding = 3;
+const dayPaddingInMS = 3 * 24 * 60 * 60 * 1000;
+const margin = 20;
 export class Graph extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      loading: false
+      loading: true
     }
     this.processData = this.processData.bind(this);
     this.onRef = this.onRef.bind(this);
+    this.handleResize = this.handleResize.bind(this);
   }
 
-  processData(isUpdate) {
+  processData(isUpdate, resize = false) {
     let data = this.props.data || [];
     if(data.length < 5) return;
-    const svg = d3.select(ref);
     const ref = this.svg;
+    if(!ref)
+      return;
+    const svg = d3.select(ref);
     let width = ref.clientWidth;
-    const rectWid = 20;
-    const height = ref.clientHeight - 20;
+    const rectWid = width/40;
+    const height = ref.clientHeight - margin;
     let obj = {}
     data.forEach(_data => {
       let key = d3.timeFormat("%b-%d-%y")(new Date(_data.createdAt));
@@ -31,66 +38,86 @@ export class Graph extends React.Component{
     });
     data = d3.map(obj).entries();
     let xMin = d3.min(data, d => new Date(d.key));
-    xMin = new Date(new Date(xMin).getTime() - 172800000)
-    const xMax = new Date(new Date(xMin).getTime() + 1296000000);
+    xMin = new Date(new Date(xMin).getTime() - dayPaddingInMS)
+    let xMax = d3.max(data, d => new Date(d.key));
+    xMax = new Date(new Date(xMax).getTime() + dayPaddingInMS);
     const xScale = d3.scaleTime()
         .domain([xMin, xMax])
-        .range([20, width -20])
+        .range([margin, width -margin])
     const yMax = d3.max(data, d => d.value);
     const yScale = d3.scaleLinear()
           .domain([0,yMax + 1])
-          .range([height - 20, 20]);
+          .range([height - margin, margin]);
     const xAxis = d3.axisBottom()
-      .ticks(10)
     	.scale(xScale);
     const yAxis = d3.axisLeft()
       .ticks(10)
     	.scale(yScale);
-    const t = d3.transition().duration(500);
+
+    const t = d3.transition().duration(300);
+    if(resize) //responsive
+    {
+      d3.select(ref)
+      .selectAll('rect')
+      .remove()
+    }
     let _bar = d3.select(ref)
       .selectAll('rect')
-      .data(data, d=>d.key)
+      .data(data, d=>d.value)
       .enter().append('rect');
+      if(isUpdate)
+        _bar.exit().transition(t).remove();
       _bar.attr('x', (d, i) => xScale(new Date(d.key)))
       .attr('height', d => height - yScale(d.value))
-      .attr('width', rectWid)
-      .transition(t)
-      .attr('y', d => yScale(d.value))
+      .attr('width', rectWid);
+      if(!resize)
+        _bar.transition(t);
+      _bar.attr('y', d => yScale(d.value))
       .attr('fill', '#7f7f7f')
       .attr('stroke', '#fff');
-
     if(!isUpdate) {
-      d3.select(ref)
+      svg
         .append('g')
         .attr("class", "x-axis")
       	.attr('transform', `translate(0, ${height})`)
       	.call(xAxis)
-      d3.select(ref)
+      svg
         .append('g')
         .attr("class", "y-axis")
-      	.attr('transform', `translate(${20},0)`)
+      	.attr('transform', `translate(${margin},0)`)
       	.call(yAxis)
     } else {
-      d3.select(ref)
+      svg
         .selectAll("g.x-axis")
       	.call(xAxis)
-      d3.select(ref)
+      svg
         .selectAll("g.y-axis")
         .call(yAxis)
     }
 
   }
-
+  handleResize() {
+    this.processData(true,true);
+  }
   onRef(ref) {
     this.svg = ref;
-    this.processData();
+    setTimeout(()=>{
+      this.processData();
+    },100)
   }
   componentDidMount() {
-
+    window.addEventListener("resize", this.handleResize);
   }
-
-  componentDidUpdate(nextProps, nextState) {
-      this.processData(true);
+  shouldComponentUpdate(nextProps, nextState) {
+    if(nextProps.data.length != this.props.data.length)
+      return true;
+    return false;
+  }
+  componentDidUpdate(prevProps, prevState) {
+      this.processData(prevProps.data.length != 0);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleResize);
   }
 
   render() {

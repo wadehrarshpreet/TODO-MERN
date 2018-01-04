@@ -1,14 +1,53 @@
-h2{
-  font-size:20px;
+h2 {
+  font-size: 20px;
 }
 
-.loginButton{
+.loginButton {
   background-color: #DD4B39;
   color: #fff !important;
   cursor: pointer;
-  &:hover{
+
+  &:hover {
     background-color: #DD4B39 !important;
     color: #fff !important;
     opacity: 0.8;
+  }
+}
+
+.margin0 {
+  margin: 0 !important;
+}
+
+.page {
+  width: 100%;
+  background-color: #ccc;
+  padding-left: 20px;
+  padding-top: 10px;
+
+  .pagination {
+    margin: 0;
+  }
+}
+.red{
+  color: red;
+}
+
+.marginR20 {
+  margin-right: 20px;
+}
+.formLabel{
+  font-size: 12px;
+  color: #bbb;
+}
+.padLR10 {
+  padding: 0px 10px;
+}
+.todoList {
+  tr {
+    cursor: pointer;
+
+    td {
+      vertical-align: middle!important;
+    }
   }
 }

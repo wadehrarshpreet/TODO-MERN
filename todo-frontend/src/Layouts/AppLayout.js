@@ -51,7 +51,9 @@ class AppLayout extends React.Component {
     window.localStorage.removeItem('userId');
   }
   render() {
-    const {data, loading, createLoading} = this.props;
+    let {data, loading, createLoading} = this.props;
+    if(!this.state.user)
+      data = [];
     return (
       <div>
         <Header active={this.props.active} user={this.state.user} logout={this.logout} loginWithGoogle={this.loginWithGoogle} />
@@ -65,6 +67,8 @@ class AppLayout extends React.Component {
                 createTask={this.props.createTask}
                 loading={loading}
                 markAsDone={this.props.markAsDone}
+                deleteTodo={this.props.deleteTodo}
+                deleted={this.props.deleted}
               />
             }/>
   	     </Switch>
